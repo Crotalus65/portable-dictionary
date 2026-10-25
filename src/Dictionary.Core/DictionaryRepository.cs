@@ -24,13 +24,23 @@ public sealed class DictionaryRepository : IDisposable
             Pooling = false
         };
         _connection = new SqliteConnection(builder.ToString());
-        _connection.Open();
-        using (var command = _connection.CreateCommand())
+        try
         {
-            command.CommandText = "PRAGMA query_only = ON; PRAGMA mmap_size = 268435456; PRAGMA temp_store = MEMORY;";
-            command.ExecuteNonQuery();
+            _connection.Open();
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = "PRAGMA query_only = ON; PRAGMA mmap_size = 268435456; PRAGMA temp_store = MEMORY;";
+                command.ExecuteNonQuery();
+            }
+            _datasetInfo = ReadAndValidateMetadata();
         }
-        _datasetInfo = ReadAndValidateMetadata();
+        catch
+        {
+            // A rejected database must not stay open: on Windows an open file cannot be replaced or deleted,
+            // which also made the schema-rejection tests fail there.
+            _connection.Dispose();
+            throw;
+        }
     }
 
     public DatasetInfo DatasetInfo => _datasetInfo!;

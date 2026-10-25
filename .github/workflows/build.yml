@@ -63,16 +63,16 @@ jobs:
           ls -l release
           cat release/Portable-Dictionary-0.3-SHA256SUMS.txt
 
-      - name: Publish the build logs to the ci-logs branch
+      - name: Publish the build logs as a pre-release
         if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -q --orphan ci-logs
-          git rm -r -q --cached .
-          git add -f release/logs
-          git commit -q -m "Build logs for run ${{ github.run_number }} (${{ github.sha }})"
-          git push -f -q origin ci-logs
+          gh release create "logs-run-${{ github.run_number }}" release/logs/*.log \
+            --target "${{ github.sha }}" \
+            --prerelease \
+            --title "Build logs for run ${{ github.run_number }}" \
+            --notes "Step logs of workflow run ${{ github.run_id }} (job status: ${{ job.status }}). Safe to delete."
 
       - name: Publish the archives as a GitHub release
         if: success()
