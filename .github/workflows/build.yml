@@ -1,0 +1,47 @@
+name: Build Windows release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_NOLOGO: 1
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+
+jobs:
+  build:
+    name: Test, publish and package (win-x64)
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Install the pinned .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run tests, publish self-contained win-x64 build and create the release archives
+        run: python tools/build.py
+
+      - name: Show release contents
+        shell: pwsh
+        run: Get-ChildItem release | Format-Table Name, Length; Get-Content release/Portable-Dictionary-0.3-SHA256SUMS.txt
+
+      - name: Upload release archives
+        uses: actions/upload-artifact@v4
+        with:
+          name: Portable-Dictionary-0.3-release
+          path: |
+            release/Portable-Dictionary-0.3-Windows-x64.zip
+            release/Portable-Dictionary-0.3-Source.zip
+            release/Portable-Dictionary-0.3-SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30

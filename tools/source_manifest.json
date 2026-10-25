@@ -1,0 +1,34 @@
+{
+  "datasetId": "oewn",
+  "datasetVersion": "2025",
+  "datasetName": "Open English WordNet 2025 Edition",
+  "preparedSchemaVersion": 1,
+  "archives": [
+    {
+      "file": "english-wordnet-2025.xml.gz",
+      "url": "https://en-word.net/static/english-wordnet-2025.xml.gz",
+      "sha256": "9ca6d1dcb75f822fdd66617f7d9da48142ace38dd544d6ad5e2feca1674ad3fe",
+      "purpose": "Structured WN-LMF 1.3 lexical entries, senses, synsets, definitions, and examples"
+    },
+    {
+      "file": "english-wordnet-2025.zip",
+      "url": "https://en-word.net/static/english-wordnet-2025.zip",
+      "sha256": "38b16326159f51853626b7d24a44c453fa88ab33f06fce5ec8fc5996d1c2be93",
+      "purpose": "Companion Princeton-compatible WNDB distribution; noun.exc, verb.exc, adj.exc, and adv.exc morphology mappings"
+    }
+  ],
+  "licenseSources": [
+    {
+      "file": "OEWN-LICENSE.md",
+      "url": "https://raw.githubusercontent.com/globalwordnet/english-wordnet/2025-edition/LICENSE.md"
+    },
+    {
+      "file": "WNDB_License.txt",
+      "url": "https://raw.githubusercontent.com/globalwordnet/english-wordnet/2025-edition/WNDB_License.txt"
+    },
+    {
+      "file": "CC-BY-4.0.txt",
+      "url": "https://creativecommons.org/licenses/by/4.0/legalcode.txt"
+    }
+  ]
+}

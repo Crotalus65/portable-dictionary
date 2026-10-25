@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Dictionary.App/Dictionary.App.csproj" />
+    <Project Path="src/Dictionary.Core/Dictionary.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Dictionary.Tests/Dictionary.Tests.csproj" />
+  </Folder>
+</Solution>
