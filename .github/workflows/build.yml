@@ -5,15 +5,25 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
   DOTNET_NOLOGO: 1
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  # The lock files were generated on Linux; let a Windows restore update them instead of failing in locked mode.
+  RestoreLockedMode: false
+  PYTHONUTF8: 1
+  PYTHONIOENCODING: utf-8
 
 jobs:
   build:
     name: Test, publish and package (win-x64)
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Check out source
         uses: actions/checkout@v4
@@ -28,14 +38,57 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Run tests, publish self-contained win-x64 build and create the release archives
-        run: python tools/build.py
+      - name: Tool versions
+        run: |
+          mkdir -p release/logs
+          { dotnet --info; python --version; } 2>&1 | tee release/logs/00-tools.log
+
+      - name: Importer and data tests
+        run: |
+          set -o pipefail
+          python tools/test_importer.py 2>&1 | tee release/logs/10-test-importer.log
+
+      - name: .NET tests
+        run: |
+          set -o pipefail
+          dotnet test tests/Dictionary.Tests/Dictionary.Tests.csproj -c Release 2>&1 | tee release/logs/20-dotnet-test.log
+
+      - name: Publish self-contained win-x64 build and create the release archives
+        run: |
+          set -o pipefail
+          python tools/build.py --skip-tests 2>&1 | tee release/logs/30-build.log
 
       - name: Show release contents
-        shell: pwsh
-        run: Get-ChildItem release | Format-Table Name, Length; Get-Content release/Portable-Dictionary-0.3-SHA256SUMS.txt
+        run: |
+          ls -l release
+          cat release/Portable-Dictionary-0.3-SHA256SUMS.txt
 
-      - name: Upload release archives
+      - name: Publish the build logs to the ci-logs branch
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -q --orphan ci-logs
+          git rm -r -q --cached .
+          git add -f release/logs
+          git commit -q -m "Build logs for run ${{ github.run_number }} (${{ github.sha }})"
+          git push -f -q origin ci-logs
+
+      - name: Publish the archives as a GitHub release
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "build-${{ github.run_number }}" \
+            release/Portable-Dictionary-0.3-Windows-x64.zip \
+            release/Portable-Dictionary-0.3-Source.zip \
+            release/Portable-Dictionary-0.3-SHA256SUMS.txt \
+            --target "${{ github.sha }}" \
+            --title "Portable Dictionary 0.3 with the lookup-shortcut fix (build ${{ github.run_number }})" \
+            --notes "Built by GitHub Actions on windows-latest from commit ${{ github.sha }}. Portable-Dictionary-0.3-Windows-x64.zip contains the Dictionary-0.3 folder with Dictionary.exe; Portable-Dictionary-0.3-Source.zip is the matching source."
+
+      - name: Upload release archives and logs as a workflow artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Portable-Dictionary-0.3-release
@@ -43,5 +96,6 @@ jobs:
             release/Portable-Dictionary-0.3-Windows-x64.zip
             release/Portable-Dictionary-0.3-Source.zip
             release/Portable-Dictionary-0.3-SHA256SUMS.txt
-          if-no-files-found: error
+            release/logs/
+          if-no-files-found: warn
           retention-days: 30
