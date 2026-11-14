@@ -132,7 +132,7 @@ For this revision, **82 .NET tests** pass, including guide navigation/history, c
 
 - `src/` holds the Windows Forms application and the core lookup library, `tests/` the xUnit suite, `tools/` the data import, build and release-notes scripts, and `docs/` the build, verification and user-guide documents.
 - Every push is tested, published and packaged on a Windows runner by the [Build workflow](.github/workflows/build.yml); the archives from each run are kept for 30 days as a workflow artifact.
-- A release is cut by pushing a version tag that matches `APP_VERSION` in `tools/build.py`, for example `v1.0.5`. The workflow then publishes the portable archive, the source archive and their SHA-256 checksums on the [Releases](https://github.com/Crotalus65/portable-dictionary/releases) page, with notes drawn from this README's section for that version.
+- A release is cut by pushing a version tag that matches `APP_VERSION` in `tools/build.py`, for example `v1.0.5`, or by running the Build workflow manually on `main` with **Publish a release** enabled. The workflow then publishes the portable archive, the source archive and their SHA-256 checksums on the [Releases](https://github.com/Crotalus65/portable-dictionary/releases) page, with notes drawn from this README's section for that version.
 
 ## Licenses and attribution
 

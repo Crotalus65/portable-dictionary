@@ -89,7 +89,7 @@ Releases are published by the GitHub Actions workflow in `.github/workflows/buil
 
 1. Set the new version in `tools/build.py` (`APP_VERSION`), `src/Dictionary.App/Dictionary.App.csproj` (`Version`, `AssemblyVersion`, `FileVersion`, `InformationalVersion`), the README title and the file names mentioned in this document, and add a `## Version X.Y.Z` section to the README; that section becomes the release notes (`tools/release_notes.py` assembles them).
 2. Push to `main` and wait for the **Build** workflow to pass. Every push produces the archives as a 30-day workflow artifact without publishing anything.
-3. Tag the commit and push the tag: `git tag v1.0.5 && git push origin v1.0.5`. The tag must equal `v` plus `APP_VERSION`; the workflow refuses a mismatch.
+3. Either tag the commit and push the tag (`git tag v1.0.5 && git push origin v1.0.5`; the tag must equal `v` plus `APP_VERSION`, and the workflow refuses a mismatch), or open **Actions → Build → Run workflow** on `main` and enable **Publish a release**, which makes the runner create that tag itself.
 4. The tag run publishes the GitHub release with `Portable-Dictionary-X.Y.Z-Windows-x64.zip`, `Portable-Dictionary-X.Y.Z-Source.zip` and `Portable-Dictionary-X.Y.Z-SHA256SUMS.txt`. The README's download link always points at the latest release.
 
 ## Change the dataset or schema
