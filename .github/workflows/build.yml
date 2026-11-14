@@ -112,24 +112,33 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tag="v${{ steps.version.outputs.version }}"
-          if git fetch --quiet --depth=1 origin "refs/tags/$tag:refs/tags/$tag" 2>/dev/null; then
-            existing="$(git rev-parse "$tag^{commit}")"
-            if [ "$existing" = "$GITHUB_SHA" ]; then
-              echo "Tag $tag already points at this commit."
-              exit 0
+          set -o pipefail
+          create_tag() {
+            tag="v${{ steps.version.outputs.version }}"
+            if git fetch --depth=1 origin "refs/tags/$tag:refs/tags/$tag"; then
+              existing="$(git rev-parse "$tag^{commit}")"
+              if [ "$existing" = "$GITHUB_SHA" ]; then
+                echo "Tag $tag already points at this commit."
+                return 0
+              fi
+              if [ "${{ inputs.replace_release }}" != "true" ]; then
+                echo "Tag $tag already exists at $existing, not at this commit $GITHUB_SHA. Bump APP_VERSION, or re-run with 'Replace an existing release' enabled." >&2
+                return 1
+              fi
+              echo "Replacing release $tag: removing the release and tag at $existing."
+              if ! gh release delete "$tag" --cleanup-tag --yes; then
+                echo "No release to delete; removing the remote tag directly."
+                git push --delete origin "refs/tags/$tag" || true
+              fi
+              git tag -d "$tag"
+            else
+              echo "Tag $tag does not exist yet."
             fi
-            if [ "${{ inputs.replace_release }}" != "true" ]; then
-              echo "Tag $tag already exists at $existing, not at this commit $GITHUB_SHA. Bump APP_VERSION, or re-run with 'Replace an existing release' enabled." >&2
-              exit 1
-            fi
-            echo "Replacing release $tag: removing the release and tag at $existing."
-            gh release delete "$tag" --cleanup-tag --yes || git push --delete origin "refs/tags/$tag"
-            git tag -d "$tag"
-          fi
-          git tag "$tag" "$GITHUB_SHA"
-          git push origin "refs/tags/$tag"
-          echo "Created tag $tag at $GITHUB_SHA."
+            git tag "$tag" "$GITHUB_SHA"
+            git push origin "refs/tags/$tag"
+            echo "Created tag $tag at $GITHUB_SHA."
+          }
+          create_tag 2>&1 | tee release/logs/40-tag.log
 
       - name: Publish the GitHub release
         if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.publish_release && github.ref == 'refs/heads/main')
