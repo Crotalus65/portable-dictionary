@@ -3,6 +3,8 @@
 [![Build](https://github.com/Crotalus65/portable-dictionary/actions/workflows/build.yml/badge.svg)](https://github.com/Crotalus65/portable-dictionary/actions/workflows/build.yml)
 [![Latest release](https://img.shields.io/github/v/release/Crotalus65/portable-dictionary?label=download)](https://github.com/Crotalus65/portable-dictionary/releases/latest)
 
+**Website:** https://crotalus65.github.io/portable-dictionary/ — what the program is, a screenshot, and the download.
+
 A compact, offline Windows 10/11 x64 dictionary and thesaurus built with C#, Windows Forms, and .NET 10. It combines Open English WordNet definitions, source examples, meaning-specific synonyms, WordNet-style morphology, a global selected-text shortcut, tray operation, and portable settings.
 
 ## Download

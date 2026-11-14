@@ -1,0 +1,247 @@
+/* Portable Dictionary and Thesaurus — project page.
+   The page is typeset like a dictionary entry: Literata (OFL, self-hosted) for the
+   entry text, the system UI face for controls, and the application's own link blue
+   as the single accent. */
+
+@font-face {
+  font-family: "Literata";
+  src: url("fonts/Literata-latin.woff2") format("woff2");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Literata";
+  src: url("fonts/Literata-Italic-latin.woff2") format("woff2");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  --paper: #f4f5f7;
+  --ink: #1c2127;
+  --muted: #5a6473;
+  --rule: #d3d8df;
+  --accent: #0b5cad;
+  --accent-strong: #084a8c;
+  --accent-ink: #ffffff;
+  --key-face: #ffffff;
+  --key-edge: #b9c0c9;
+  --shadow: 0 18px 40px rgba(20, 30, 45, 0.18), 0 2px 6px rgba(20, 30, 45, 0.12);
+
+  --serif: "Literata", "Charter", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --sans: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "Cascadia Mono", Consolas, "SFMono-Regular", Menlo, monospace;
+
+  --measure: 64ch;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #1f242b;
+    --ink: #e7ebf1;
+    --muted: #a0aab8;
+    --rule: #3a424d;
+    --accent: #8ec0f5;
+    --accent-strong: #aed2f8;
+    --accent-ink: #0f1a27;
+    --key-face: #2a313a;
+    --key-edge: #4a5462;
+    --shadow: 0 18px 40px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.4);
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { font-size: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 1.125rem;
+  line-height: 1.65;
+  font-optical-sizing: auto;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 0.14em; }
+a:hover { color: var(--accent-strong); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+code, kbd {
+  font-family: var(--mono);
+  font-size: 0.86em;
+}
+
+kbd {
+  font-family: var(--sans);
+  font-size: 0.78em;
+  line-height: 1;
+  padding: 0.22em 0.5em 0.28em;
+  border: 1px solid var(--key-edge);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--key-face);
+  color: var(--ink);
+  white-space: nowrap;
+  vertical-align: 0.1em;
+}
+
+.page {
+  width: min(100% - 2.5rem, 72rem);
+  margin: 0 auto;
+}
+
+/* Top bar */
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.1rem 0;
+  font-family: var(--sans);
+  font-size: 0.95rem;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 600;
+}
+.brand img { width: 20px; height: 20px; }
+.top nav { display: flex; gap: 1.5rem; }
+.top nav a { color: var(--ink); text-decoration: none; }
+.top nav a:hover { color: var(--accent); text-decoration: underline; }
+
+/* The entry and the screenshot */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 3rem 4rem;
+  align-items: start;
+  padding: 3.5rem 0 4.5rem;
+}
+
+.entry { max-width: var(--measure); }
+
+.headword {
+  font-size: clamp(2.2rem, 1.5rem + 2.4vw, 3.1rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.012em;
+  margin: 0;
+}
+.pos {
+  margin: 0.55rem 0 1.4rem;
+  font-style: italic;
+  color: var(--muted);
+}
+.senses {
+  margin: 0;
+  padding-left: 1.7em;
+}
+.senses li { margin: 0 0 0.85rem; padding-left: 0.2em; }
+.senses li::marker { color: var(--muted); }
+.example {
+  margin: 1.3rem 0 0.35rem;
+  font-style: italic;
+  color: var(--muted);
+}
+.synonyms { margin: 0; color: var(--muted); }
+.synonyms a { color: var(--accent); }
+
+.actions {
+  margin-top: 2.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem 1.6rem;
+  font-family: var(--sans);
+}
+.button {
+  display: inline-block;
+  padding: 0.8rem 1.35rem;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+  font-size: 1.05rem;
+  text-decoration: none;
+  line-height: 1.2;
+}
+.button:hover { background: var(--accent-strong); color: var(--accent-ink); }
+.version { margin: 0; font-size: 0.95rem; color: var(--muted); }
+.version a { color: var(--accent); }
+
+.shot { margin: 0.4rem 0 0; max-width: 100%; }
+.shot img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  box-shadow: var(--shadow);
+  border-radius: 8px;
+}
+.shot figcaption {
+  margin-top: 1rem;
+  max-width: 472px;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* Sections */
+main section + section,
+.hero + section { border-top: 1px solid var(--rule); }
+
+section:not(.hero) {
+  padding: 3.25rem 0 3.5rem;
+  max-width: var(--measure);
+}
+section h2 {
+  font-size: 1.7rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.008em;
+  margin: 0 0 1.1rem;
+}
+section p { margin: 0 0 1rem; }
+section ol { margin: 0 0 1rem; padding-left: 1.7em; }
+section ol li { margin-bottom: 0.7rem; padding-left: 0.2em; }
+section ol li::marker { color: var(--muted); }
+section p:last-child, section ol:last-child { margin-bottom: 0; }
+
+footer {
+  border-top: 1px solid var(--rule);
+  padding: 2rem 0 3rem;
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+footer p { margin: 0; max-width: var(--measure); }
+
+@media (max-width: 62rem) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.75rem;
+    padding: 2.5rem 0 3.5rem;
+  }
+}
+
+@media (max-width: 40rem) {
+  body { font-size: 1.0625rem; }
+  .top { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  .top nav { gap: 1.25rem; }
+  .pos { margin-bottom: 1.1rem; }
+  section:not(.hero) { padding: 2.5rem 0 2.75rem; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .button { transition: background-color 120ms ease-out; }
+}

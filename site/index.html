@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Portable Dictionary and Thesaurus — an offline dictionary for Windows</title>
+  <meta name="description" content="A compact, offline dictionary and thesaurus for Windows 10 and 11. Highlight a word in any program, press Ctrl+Alt+D, and its entry appears. Open English WordNet 2025, no installer, free and open source.">
+  <link rel="canonical" href="https://crotalus65.github.io/portable-dictionary/">
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" href="style.css">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Portable Dictionary and Thesaurus">
+  <meta property="og:description" content="A compact, offline dictionary and thesaurus for Windows. Highlight a word in any program, press Ctrl+Alt+D.">
+  <meta property="og:url" content="https://crotalus65.github.io/portable-dictionary/">
+  <meta property="og:image" content="https://crotalus65.github.io/portable-dictionary/screenshot.png">
+  <meta property="og:image:width" content="472">
+  <meta property="og:image:height" content="387">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+  <div class="page">
+    <header class="top">
+      <a class="brand" href="#"><img src="favicon.ico" alt="" width="20" height="20">Portable Dictionary and Thesaurus</a>
+      <nav aria-label="Site">
+        <a href="#install">Install</a>
+        <a href="https://github.com/Crotalus65/portable-dictionary">Source on GitHub</a>
+        <a href="https://github.com/Crotalus65/portable-dictionary/releases">Releases</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="headword">
+        <article class="entry">
+          <h1 class="headword" id="headword">Portable Dictionary and Thesaurus</h1>
+          <p class="pos">noun</p>
+          <ol class="senses">
+            <li>a compact, offline dictionary and thesaurus for 64-bit Windows 10 and 11, built on Open English WordNet 2025: 135,969 entries, 185,129 senses, 49,596 example sentences, and synonyms grouped by meaning.</li>
+            <li>a lookup shortcut: highlight a word in any program, or put the text cursor in it, press <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>D</kbd>, and its entry appears. Click a synonym to follow it; <b>Back</b> returns.</li>
+            <li>a single folder with no installer, no account, and no network use. Settings are kept beside the program, which waits in the system tray between lookups.</li>
+          </ol>
+          <p class="example">Example: she pressed Ctrl+Alt+D on “resplendent” and went on reading.</p>
+          <p class="synonyms">Synonyms: <a href="https://en-word.net/lemma/lexicon">lexicon</a>, <a href="https://en-word.net/lemma/wordbook">wordbook</a>, <a href="https://en-word.net/lemma/synonym%20finder">synonym finder</a></p>
+          <div class="actions">
+            <a class="button" id="download" href="https://github.com/Crotalus65/portable-dictionary/releases/latest">Download for Windows</a>
+            <p class="version" id="version-line">Version <span class="v">1.0.5</span>, <span class="mb">82</span> MB. Free and open source.</p>
+          </div>
+        </article>
+
+        <figure class="shot">
+          <img src="screenshot.png" width="472" height="387" alt="The Dictionary window showing the entry for resplendent: adjective; 1. having great beauty and splendor; four example sentences; and the synonyms glorious, splendid and splendiferous as links.">
+          <figcaption>The whole program: version <span class="v">1.0.5</span> looking up <i>resplendent</i>. The synonyms are links to their own entries.</figcaption>
+        </figure>
+      </section>
+
+      <section id="install" aria-labelledby="install-heading">
+        <h2 id="install-heading">Install</h2>
+        <ol>
+          <li>Download <code>Portable-Dictionary-<span class="v">1.0.5</span>-Windows-x64.zip</code> and extract the whole archive to a folder you can write to. A USB drive works.</li>
+          <li>Open the extracted <code>Dictionary-<span class="v">1.0.5</span></code> folder and run <code>Dictionary.exe</code>. Nothing else needs installing: the .NET runtime and the complete dictionary are inside the folder, which is why the download is <span class="mb">82</span> MB.</li>
+          <li>Windows SmartScreen may object the first time, because the program is not code-signed. Choose <b>More info</b>, then <b>Run anyway</b>. Each release page lists SHA-256 checksums if you want to verify the file first.</li>
+        </ol>
+        <p>Upgrading: exit the earlier version from its tray menu before starting the new one. All versions share one tray identity and one shortcut.</p>
+        <p>Every release, with its source archive and checksums, is on the <a href="https://github.com/Crotalus65/portable-dictionary/releases">Releases</a> page.</p>
+      </section>
+
+      <section id="lookup" aria-labelledby="lookup-heading">
+        <h2 id="lookup-heading">Looking up words</h2>
+        <p>The shortcut reads the highlighted text in the active program, or the word at the text cursor when the program exposes it, as Notepad, Word, most editors, and text fields do. An ordinary web page has no text cursor, so highlight the word first. LibreOffice Writer, TextMaker, and ONLYOFFICE also need the word highlighted.</p>
+        <p>In the window itself, <kbd>Enter</kbd> looks up what you typed, <b>Back</b> or <kbd>Alt</kbd>+<kbd>←</kbd> returns to the previous entry, and <kbd>Esc</kbd> hides the window to the tray while the shortcut stays active. The menu changes the text size (9 to 20 point), reassigns the shortcut, and reopens the user guide.</p>
+        <p>Lookups are limited to one line of up to 160 characters. Inflected forms resolve to their base form first, so <i>occasions</i> shows <i>occasion</i> and then <i>occasions</i>, and <i>better</i> shows <i>good</i>, <i>well</i>, and then <i>better</i>.</p>
+      </section>
+
+      <section id="scope" aria-labelledby="scope-heading">
+        <h2 id="scope-heading">What it does not do</h2>
+        <p>There is no search-as-you-type, no autocomplete, no spell-check, no online lookup, and no AI. It shows the definitions, examples, and synonyms of the word you asked about. That is the whole program.</p>
+      </section>
+
+      <section id="data" aria-labelledby="data-heading">
+        <h2 id="data-heading">Data and licenses</h2>
+        <p>Definitions, examples, and synonyms come from the <a href="https://en-word.net/">Open English WordNet 2025 Edition</a>, released under CC BY 4.0, which incorporates Princeton WordNet under the WordNet License. The program is MIT-licensed C# and Windows Forms on .NET 10. The full notices ship in the <code>licenses</code> folder beside the program and are reachable from its user guide.</p>
+      </section>
+    </main>
+
+    <footer>
+      <p><a href="https://github.com/Crotalus65/portable-dictionary">Source, issues, and releases are on GitHub.</a> Releases are built by GitHub Actions from the tagged source; the checksums on each release page identify the exact files.</p>
+    </footer>
+  </div>
+
+  <script>
+    // Show the current release on the page without editing it for each version.
+    // The download button goes straight to the Windows archive of the latest release;
+    // if the lookup fails, the links and text above already point at the latest release page.
+    (async () => {
+      try {
+        const response = await fetch("https://api.github.com/repos/Crotalus65/portable-dictionary/releases/latest",
+          { headers: { Accept: "application/vnd.github+json" } });
+        if (!response.ok) return;
+        const release = await response.json();
+        const version = (release.tag_name || "").replace(/^v/, "");
+        const asset = (release.assets || []).find(a => /-Windows-x64\.zip$/.test(a.name));
+        if (!version || !asset) return;
+        document.getElementById("download").href = asset.browser_download_url;
+        document.querySelectorAll(".v").forEach(el => { el.textContent = version; });
+        document.querySelectorAll(".mb").forEach(el => { el.textContent = String(Math.round(asset.size / 1048576)); });
+      } catch (_) {
+        // Offline or rate-limited: the static text and the latest-release link stand.
+      }
+    })();
+  </script>
+</body>
+</html>
