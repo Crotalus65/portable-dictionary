@@ -69,14 +69,42 @@ public sealed class CoreTests
         {
             var path = Path.Combine(directory.FullName, "settings.json");
             var store = new PortableSettingsStore(path);
-            var settings = new AppSettings { TextSize = 14, WindowX = 120, WindowY = 140, Shortcut = "Ctrl+Shift+F7" };
+            var settings = new AppSettings { TextSize = 14, Shortcut = "Ctrl+Shift+F7" };
             Assert.True(store.Save(settings, out var warning));
             Assert.Null(warning);
             var loaded = store.Load();
             Assert.Null(loaded.Warning);
             Assert.Equal(14, loaded.Settings.TextSize);
-            Assert.Equal(120, loaded.Settings.WindowX);
             Assert.Equal("Ctrl+Shift+F7", loaded.Settings.Shortcut);
+        }
+        finally
+        {
+            directory.Delete(true);
+        }
+    }
+
+    [Fact]
+    public void LegacyWindowPlacementIsIgnoredWhilePreferencesAreRetained()
+    {
+        var directory = Directory.CreateTempSubdirectory("dictionary-legacy-settings-");
+        try
+        {
+            var path = Path.Combine(directory.FullName, "settings.json");
+            File.WriteAllText(path, """
+                {"SchemaVersion":1,"TextSize":14,"Shortcut":"Ctrl+Shift+F7",
+                 "WindowX":9000,"WindowY":-5000,"WindowWidth":1500,"WindowHeight":950}
+                """);
+            var store = new PortableSettingsStore(path);
+            var loaded = store.Load();
+            Assert.Null(loaded.Warning);
+            Assert.Equal(14, loaded.Settings.TextSize);
+            Assert.Equal("Ctrl+Shift+F7", loaded.Settings.Shortcut);
+            Assert.True(store.Save(loaded.Settings, out _));
+            using var saved = System.Text.Json.JsonDocument.Parse(File.ReadAllText(path));
+            foreach (var property in new[] { "WindowX", "WindowY", "WindowWidth", "WindowHeight" })
+            {
+                Assert.False(saved.RootElement.TryGetProperty(property, out _));
+            }
         }
         finally
         {

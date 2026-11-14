@@ -1,45 +1,79 @@
-# Portable Dictionary and Thesaurus 0.3
+# Portable Dictionary and Thesaurus 1.0.5
+
+[![Build](https://github.com/Crotalus65/portable-dictionary/actions/workflows/build.yml/badge.svg)](https://github.com/Crotalus65/portable-dictionary/actions/workflows/build.yml)
+[![Latest release](https://img.shields.io/github/v/release/Crotalus65/portable-dictionary?label=download)](https://github.com/Crotalus65/portable-dictionary/releases/latest)
 
 A compact, offline Windows 10/11 x64 dictionary and thesaurus built with C#, Windows Forms, and .NET 10. It combines Open English WordNet definitions, source examples, meaning-specific synonyms, WordNet-style morphology, a global selected-text shortcut, tray operation, and portable settings.
 
-## Changes since the 0.3 archive
+## Download
 
-- Fixed Ctrl+Alt+D opening Dictionary without looking anything up. The shortcut previously acted only on a highlighted selection; with the cursor merely on a word, every capture step found nothing and the window opened on the previous query. It now looks up, in order, the highlighted selection, the word under the mouse pointer when the pointer rests on text of the active window, and the word at the text cursor of the focused control.
-- Browsers build their accessibility tree only when first asked, so a capture that finds no text at all is retried briefly instead of giving up.
-- Pressing the shortcut while Dictionary itself is active no longer re-looks-up the word already in its own word field; it just focuses the field.
-- The guarded Ctrl+C fallback is skipped when UI Automation has already shown that the focused control exposes its text and has no selection. In a console window, for example, a simulated Ctrl+C would interrupt the running program rather than copy anything.
-- Clipboard restoration after the Copy fallback now works: the previous code kept a live reference to the clipboard, which already described the captured text by the time it was "restored". Common formats (text, RTF, HTML, file lists, bitmaps) are copied by value and put back when no newer clipboard change is detected.
+**[Download the latest release](https://github.com/Crotalus65/portable-dictionary/releases/latest)** and pick `Portable-Dictionary-<version>-Windows-x64.zip`. The archive is about 85 MB because it bundles the .NET runtime and the complete dictionary database; nothing else needs to be installed.
 
-## Version 0.3 fixes
+1. Extract the whole archive to a writable folder or USB drive.
+2. Open the extracted `Dictionary-<version>` folder and run `Dictionary.exe`.
+3. The executable is not code-signed, so Windows SmartScreen may show "Windows protected your PC" the first time. Choose **More info**, then **Run anyway**.
 
-- Strengthened Ctrl+Alt+D selected-text lookup: after UI Automation, standard edit and rich-edit controls receive a direct Copy message before the guarded Ctrl+C fallback is attempted.
-- Removed the duplicate overall heading from successful results. The submitted query remains in the input field and each resolved headword appears once above its definitions.
-- About now opens without highlighting its text; focus starts on Close instead.
+Each release page also lists SHA-256 checksums for the archives and offers the matching source archive. Usage instructions appear in the User Guide shown when the program starts and in [docs/USER_GUIDE.md](docs/USER_GUIDE.md).
 
-Version 0.3 retains the 0.2 fixes for headword prefixes, synonym scrolling, menu and dialog sizing, text-size changes, and shortcut warnings. The portable and source archives, extracted folders, window title, welcome screen, and About dialog all carry the **0.3** identity.
+## Version 1.0.5
+
+- Resets the startup and reopened guide to the top, showing **Dictionary User Guide** after layout and initial focus settle.
+- Applies the revised guide wording, moves **Reopen this guide** immediately after **Change the lookup shortcut**, and adds guidance for word processors and PDF readers that require highlighting.
+- Lookup behavior and dictionary data remain unchanged from 1.0.4.
+- A `dictionary.db` that fails schema or dataset validation is closed before the error is reported, so Windows can replace or delete the file afterwards. This also lets the two schema-rejection tests pass on Windows.
+
+## Version 1.0.4
+
+- The complete revised User Guide appears in the main pane on startup. It wraps and scrolls, follows the selected text size, and includes lookup shortcut instructions.
+- **User Guide** replaces **About** in both menus. Opening it retains the current lookup and history; **Back** or **Alt+Left** returns to that lookup. The tray menu also restores the window when opening the guide.
+- About information and the three license-notice links are at the bottom of the guide.
+- Notice windows open at the beginning with no text selected and keyboard focus on **Close**. Text can still be selected and copied deliberately.
+- The Princeton notice viewer omits the sequential line-number column. The bundled license files and their wording are preserved unchanged.
+- The 1.0.3 capture behavior, session window positioning, shortcut-dialog wrapping, dictionary data, and dependency versions are retained.
+
+## Version 1.0.3
+
+- Restores version 1.0.1's lookup behavior and session window positioning. The cursor-capture changes introduced in 1.0.2 have been removed.
+- Retains the 1.0.2 **Menu > Lookup shortcut** dialog fix: instructions and warning messages wrap within the window, and the dialog can grow vertically to fit them.
+- Documents the applications that require a highlighted word before using the lookup shortcut.
+
+## Version 1.0.1 fixes retained
+
+- The original centered 720 × 580 default applies only when the program starts. Lookups and tray restores preserve the position, size, and maximized state chosen during the session. A full Exit followed by a new launch returns to the default.
+- Clipboard capture reads Unicode text while holding the native clipboard lock. Delayed rendering may legitimately advance the clipboard sequence while the owner supplies text; the rendered sequence is now used for validation and restoration. A newer copy before the lock or a different owner is rejected.
+- Added read-only Word document-range capture through the focused document window's native object model, and MSAA/IAccessible2 selection/caret capture for document applications such as LibreOffice. Slow native providers cannot block the separate Copy fallback. No document or selection editing commands are issued.
+- Custom word processor controls use Ctrl+C after the shortcut is released, with more time for clipboard publication. Direct WM_COPY is reserved for standard Edit/RichEdit controls.
+- Version 1.0.1 included 71 .NET cases, including 11 clipboard regression cases.
+
+Version 1.0.1 retains the first-lookup initialization retry from 1.0 and the earlier selection/caret, display, and navigation improvements.
 
 ## Run the portable release
 
-1. Extract the entire `Portable-Dictionary-0.3-Windows-x64.zip` archive to a writable local folder or USB drive.
-2. Open the extracted `Dictionary-0.3` folder and run `Dictionary.exe`.
+1. Extract the entire `Portable-Dictionary-1.0.5-Windows-x64.zip` archive to a writable local folder or USB drive.
+2. Open the extracted `Dictionary-1.0.5` folder and run `Dictionary.exe`.
 3. No separate .NET installation, first-run download, database conversion, account, or network connection is required.
 
-If an earlier version is still running, choose **Exit** from its tray menu before launching 0.3. All releases intentionally use the same single-instance and global-shortcut identity.
+If an earlier version is still running, choose **Exit** from its tray menu before launching 1.0.5. All releases intentionally use the same single-instance and global-shortcut identity.
 
 Keep `data/dictionary.db`, `Assets`, and `licenses` beside the executable. Settings are written to `settings.json` beside `Dictionary.exe`; no registry or AppData settings are used. If that file cannot be written, the app continues with in-memory settings and shows a brief nonblocking warning.
 
 ## Use
 
-- **Ctrl+Alt+D:** look up a word from the active application and restore Dictionary. A highlighted single-line selection is used first; otherwise the word under the mouse pointer, when the pointer rests on text of the active window; otherwise the word at the text cursor of the focused control. With nothing readable, the existing query is selected for replacement without an error message.
+- **Ctrl+Alt+D:** capture a usable single-line selection, or the word at the text insertion cursor where supported, restore Dictionary, and look it up. When neither is readable, the existing query is selected for replacement without an error message.
 - **Enter:** look up the word field. There is intentionally no search-as-you-type, autocomplete, spellcheck, online lookup, or AI feature.
 - **Click a synonym:** look up that synonym in its own meaning context.
-- **Back / Alt+Left:** return to the preceding lookup without adding another history entry.
+- **Back / Alt+Left:** return to the preceding lookup without adding another history entry. When viewing the guide, return to the current lookup first.
 - **Ctrl+L:** focus the word field and select its contents.
 - **Escape or X:** hide to the tray; the global shortcut remains active.
-- **Tray icon:** restore the window. The tray and main menus provide text sizing, shortcut reassignment, About, and genuine Exit.
+- **Tray icon:** restore the window. The tray and main menus provide text sizing, shortcut reassignment, User Guide, and genuine Exit.
+- **Menu > User Guide:** reopen the complete instructions. About information and the OEWN, CC BY 4.0, and Princeton WordNet notice links are at the bottom.
 - **Text size:** 9–20 point system UI font; the layout reflows with window size and Windows display scaling.
 
 Selections are limited to 160 characters and one line. Surrounding punctuation is handled conservatively; internal apostrophes, hyphens, and periods are preserved for exact lookup before alternate variants are considered.
+
+### Applications that require highlighting
+
+In some applications, **the word must be highlighted (selected) before using the keyboard lookup shortcut**. This includes **LibreOffice Writer**, **TextMaker from SoftMaker Office**, and **ONLYOFFICE**. Highlight the word, then press **Ctrl+Alt+D** or your configured shortcut. Placing the text cursor inside the word is not sufficient in these applications; Dictionary may open without changing the previous lookup.
 
 ## Dictionary data
 
@@ -83,17 +117,23 @@ The script runs all tests, publishes a self-contained `win-x64` Release build, a
 
 ## Capture limitations
 
-- UI Automation is preferred, and it is the only way the word under the pointer or at the text cursor can be read: the application must expose its text through the UI Automation Text pattern. Notepad, WordPad, rich-edit and standard edit controls, Microsoft Word, Chromium browsers (Chrome, Edge) and the Windows consoles do; some PDF readers, older or custom-drawn editors, and games do not. Those applications still work with a highlighted selection: standard edit and rich-edit controls receive a direct `WM_COPY` message, and other applications use the guarded Ctrl+C fallback. Copy behavior can still vary by application, custom control, focus change, or Windows integrity-level boundary. Capture into an elevated source application may fail when Dictionary is not elevated.
-- The pointer is only consulted while it rests on text of the active window (or another window of the same application). Pointing at text in a background window does nothing; click that window first.
-- Browsers enable their accessibility tree when a UI Automation client first asks for it. The very first shortcut after a browser starts can therefore be slower or, rarely, find nothing; the next press works.
+- UI Automation is preferred. Word native ranges and MSAA/IAccessible2 text are attempted when necessary; standard edit and rich-edit controls then receive a direct `WM_COPY` message, and other applications use the guarded Ctrl+C fallback. Copy behavior can still vary by application, custom control, focus change, or Windows integrity-level boundary. Capture into an elevated source application may fail when Dictionary is not elevated.
+- The first shortcut invocation in a process has an eight-second total initialization budget when its normal capture paths fail. This accommodates an accessibility provider that is starting for the first time. Later failed lookups use the normal short timeouts. A source-window change stops further capture commands and retries.
+- Word-at-cursor capture requires a supported text/caret API (UI Automation, the Word object model, or IAccessible2). In LibreOffice Writer, TextMaker from SoftMaker Office, ONLYOFFICE, and other controls without a readable caret, highlight the word before pressing the lookup shortcut. In an ordinary browser page without a text insertion cursor, highlight the word first (or enable the browser's caret browsing). Hovering the mouse pointer alone does not establish a text insertion point. Controls that expose neither a caret nor a usable selection still require manual entry.
 - Clipboard sequence numbers prevent unchanged clipboard text from being mistaken for a new selection. Prior clipboard content is restored only if no newer clipboard change is detected. Snapshotting and restoration are best-effort for delayed-rendered or application-specific clipboard formats.
 - An application that copies the current line without a selection may still supply text; multiline results are rejected, but source-application behavior can limit accuracy.
 - A failed shortcut registration leaves tray and manual lookup available. Use **Lookup shortcut…** to choose another combination.
 
 ## Verification status
 
-Completed on Linux: clean solution build, self-contained Windows x64 publication, **30 .NET tests**, **4 Python importer/data tests**, source-hash verification, and importer integrity/foreign-key checks. The Windows executable was **not run in this Linux environment**, so GUI, tray, global shortcut, real-editor capture, display scaling, shutdown, and other Windows-specific behaviors remain manual verification items. The exact checklist is in `docs/VERIFICATION.md`.
+For this revision, **82 .NET tests** pass, including guide navigation/history, current-shortcut expansion, notice links, conservative notice formatting, delayed clipboard rendering, newer-copy rejection, first-capture retries, focus changes, bounded waits, and older-settings migration; the Windows application compiles and publishes for x64. The Python importer/data suite has **3 passes and 1 skip** because upstream archives are not included in the source ZIP. The Windows executable was **not run in this Linux environment**, so guide layout, initial notice focus, real-editor/browser capture, and other Windows GUI behaviors remain manual verification items. See `docs/VERIFICATION.md` for the current record and checklist.
+
+## Repository
+
+- `src/` holds the Windows Forms application and the core lookup library, `tests/` the xUnit suite, `tools/` the data import, build and release-notes scripts, and `docs/` the build, verification and user-guide documents.
+- Every push is tested, published and packaged on a Windows runner by the [Build workflow](.github/workflows/build.yml); the archives from each run are kept for 30 days as a workflow artifact.
+- A release is cut by pushing a version tag that matches `APP_VERSION` in `tools/build.py`, for example `v1.0.5`. The workflow then publishes the portable archive, the source archive and their SHA-256 checksums on the [Releases](https://github.com/Crotalus65/portable-dictionary/releases) page, with notes drawn from this README's section for that version.
 
 ## Licenses and attribution
 
-Application source is MIT-licensed; see `LICENSE`. OEWN is CC BY 4.0 and incorporates Princeton WordNet under the WordNet License. These datasets are not described as public domain. The About dialog and `licenses/` folder provide the full OEWN, Creative Commons, Princeton, runtime, and library notices. See `THIRD_PARTY_NOTICES.md`.
+Application source is MIT-licensed; see `LICENSE`. OEWN is CC BY 4.0 and incorporates Princeton WordNet under the WordNet License. These datasets are not described as public domain. The About section at the bottom of the User Guide and the `licenses/` folder provide the full OEWN, Creative Commons, Princeton, runtime, and library notices. See `THIRD_PARTY_NOTICES.md`.

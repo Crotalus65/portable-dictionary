@@ -6,17 +6,11 @@ public sealed class AppSettings
 {
     public int SchemaVersion { get; set; } = 1;
     public float TextSize { get; set; } = 10f;
-    public int WindowWidth { get; set; } = 720;
-    public int WindowHeight { get; set; } = 580;
-    public int WindowX { get; set; } = int.MinValue;
-    public int WindowY { get; set; } = int.MinValue;
     public string Shortcut { get; set; } = "Ctrl+Alt+D";
 
     public void Normalize()
     {
         TextSize = Math.Clamp(TextSize, 9f, 20f);
-        WindowWidth = Math.Clamp(WindowWidth, 420, 10000);
-        WindowHeight = Math.Clamp(WindowHeight, 320, 10000);
         if (string.IsNullOrWhiteSpace(Shortcut))
         {
             Shortcut = "Ctrl+Alt+D";

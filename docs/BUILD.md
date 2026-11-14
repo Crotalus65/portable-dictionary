@@ -27,10 +27,10 @@ python3 tools/build.py --reimport
 
 Outputs:
 
-- `release/Dictionary-0.3/` — runnable portable folder, with `Dictionary.exe` at its root.
-- `release/Portable-Dictionary-0.3-Windows-x64.zip` — self-contained portable release.
-- `release/Portable-Dictionary-0.3-Source.zip` — complete source, tests, prepared data, scripts, and notices.
-- `release/Portable-Dictionary-0.3-SHA256SUMS.txt` — hashes of both ZIP deliverables.
+- `release/Dictionary-1.0.5/` — runnable portable folder, with `Dictionary.exe` at its root.
+- `release/Portable-Dictionary-1.0.5-Windows-x64.zip` — self-contained portable release.
+- `release/Portable-Dictionary-1.0.5-Source.zip` — complete source, tests, prepared data, scripts, and notices.
+- `release/Portable-Dictionary-1.0.5-SHA256SUMS.txt` — hashes of both ZIP deliverables.
 
 The packager writes stable ZIP entry order and timestamps. .NET uses deterministic compilation, but byte-for-byte output can still vary with the SDK patch, NuGet dependency versions, or runtime pack. Use the pinned SDK and included lock files for the closest reproduction.
 
@@ -68,20 +68,40 @@ dotnet build PortableDictionary.slnx -c Release
 dotnet publish src/Dictionary.App/Dictionary.App.csproj \
   -c Release -r win-x64 --self-contained true \
   -p:PublishSingleFile=false -p:DebugType=None -p:DebugSymbols=false \
-  -o release/Dictionary-0.3
+  -o release/Dictionary-1.0.5
 ```
 
-Copy `data/dictionary.db` to `release/Dictionary-0.3/data/`, and copy `Assets`, `licenses`, `README.md`, `LICENSE`, `THIRD_PARTY_NOTICES.md`, and `docs/VERIFICATION.md` into the portable folder. `tools/build.py` performs these steps and creates the ZIP automatically.
+Copy `data/dictionary.db` to `release/Dictionary-1.0.5/data/`, and copy `Assets`, `licenses`, `README.md`, `LICENSE`, `THIRD_PARTY_NOTICES.md`, and `docs/VERIFICATION.md` into the portable folder. `tools/build.py` performs these steps and creates the ZIP automatically.
 
 ## Source layout
 
 - `src/Dictionary.Core/` — SQLite validation/access, lookup, morphology, normalization, synonym filtering, history, and portable settings.
 - `src/Dictionary.App/` — Windows Forms UI, global shortcut, UI Automation and clipboard capture, single instance, tray, dialogs, and Windows integration.
-- `tests/Dictionary.Tests/` — 30 cross-platform automated tests against controlled cases and the real database.
+- `tests/Dictionary.Tests/` — 82 cross-platform automated tests against capture cases, controlled core cases, and the real database. The selection reader, clipboard reader, capture coordinator, guide navigation, guide document, and license display formatter are linked from the application so the tests exercise production policies. The tests embed the same guide template and use the bundled Princeton notice.
 - `tools/` — manifest, downloader, importer, importer/data tests, build and packaging automation.
 - `data/dictionary.db` — prepared schema 1 database; no first-run conversion.
 - `licenses/` — data, runtime, and library notices.
+- `docs/USER_GUIDE.md` — the guide template embedded in the application; its version, current shortcut, and dataset tokens are expanded at runtime. Native labels provide wrapping and keyboard-accessible notice links.
+
+## Release a version
+
+Releases are published by the GitHub Actions workflow in `.github/workflows/build.yml`, which runs the same `tools/build.py` steps on a `windows-latest` runner with the SDK pinned by `global.json`.
+
+1. Set the new version in `tools/build.py` (`APP_VERSION`), `src/Dictionary.App/Dictionary.App.csproj` (`Version`, `AssemblyVersion`, `FileVersion`, `InformationalVersion`), the README title and the file names mentioned in this document, and add a `## Version X.Y.Z` section to the README; that section becomes the release notes (`tools/release_notes.py` assembles them).
+2. Push to `main` and wait for the **Build** workflow to pass. Every push produces the archives as a 30-day workflow artifact without publishing anything.
+3. Tag the commit and push the tag: `git tag v1.0.5 && git push origin v1.0.5`. The tag must equal `v` plus `APP_VERSION`; the workflow refuses a mismatch.
+4. The tag run publishes the GitHub release with `Portable-Dictionary-X.Y.Z-Windows-x64.zip`, `Portable-Dictionary-X.Y.Z-Source.zip` and `Portable-Dictionary-X.Y.Z-SHA256SUMS.txt`. The README's download link always points at the latest release.
 
 ## Change the dataset or schema
 
 A different dataset requires updating the manifest, `DataContract`, tests, and documentation together. Any incompatible prepared representation change requires incrementing schema 1 in both the importer and `DataContract.SchemaVersion`; the application deliberately rejects a mismatch rather than silently returning incomplete results.
+
+## Native capture references
+
+- Word window object model: https://learn.microsoft.com/en-us/windows/win32/api/oleacc/nf-oleacc-accessibleobjectfromwindow
+- IAccessible2 text interface and method ordering: https://github.com/LinuxA11y/IAccessible2/blob/master/api/AccessibleText.idl
+- Clipboard ownership and delayed rendering: https://learn.microsoft.com/en-us/windows/win32/dataxchg/clipboard-operations
+
+## Notice display formatting
+
+The Princeton license page (https://wordnet.princeton.edu/license-and-commercial-use) presents unnumbered prose. The bundled OEWN WNDB notice has a sequential 1..30 line-number column. Version 1.0.5 omits that column only in the viewer, and only when the complete sequence is recognized. License files remain byte-for-byte unchanged; clause numbers in other notices are retained. Notice dialogs focus their Close button and explicitly clear the initial text selection on Shown.

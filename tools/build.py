@@ -13,7 +13,7 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 RELEASE = ROOT / "release"
-APP_VERSION = "0.3"
+APP_VERSION = "1.0.5"
 PORTABLE_FOLDER = RELEASE / f"Dictionary-{APP_VERSION}"
 PORTABLE_ZIP = RELEASE / f"Portable-Dictionary-{APP_VERSION}-Windows-x64.zip"
 SOURCE_ZIP = RELEASE / f"Portable-Dictionary-{APP_VERSION}-Source.zip"

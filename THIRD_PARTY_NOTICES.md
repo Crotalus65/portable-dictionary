@@ -14,3 +14,5 @@
 - **FlaUI 5.0.0**, Copyright (c) 2016–2024 FlaUI contributors, MIT License. Used for Windows UI Automation selected-text retrieval. See `licenses/FlaUI-LICENSE.txt`.
 
 NuGet dependencies and exact resolved versions are recorded in each project's `packages.lock.json` in the source distribution.
+
+IAccessible2 interface declarations are derived from the Linux Foundation IAccessible2 IDL. See licenses/IAccessible2-LICENSE.txt for the BSD license and attribution.

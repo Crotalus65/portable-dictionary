@@ -12,11 +12,13 @@ public sealed class MainForm : Form
     private readonly AppSettings _settings;
     private readonly string? _startupWarning;
     private readonly SelectedTextCapture _capture = new();
-    private readonly NavigationHistory<LookupResult> _history = new();
+    private readonly LookupNavigation _history = new();
     private readonly TextBox _wordBox = new();
     private readonly Button _backButton = new();
     private readonly Button _menuButton = new();
     private readonly ResultsView _results = new();
+    private readonly UserGuideView _guide = new();
+    private readonly Panel _content = new();
     private readonly TableLayoutPanel _topPanel = new();
     private readonly StatusStrip _statusStrip = new();
     private readonly ToolStripStatusLabel _statusLabel = new();
@@ -45,7 +47,7 @@ public sealed class MainForm : Form
         Font = SystemFonts.MessageBoxFont;
         MinimumSize = new Size(440, 340);
         StartPosition = FormStartPosition.Manual;
-        Bounds = WindowPlacement.Restore(_settings);
+        Bounds = WindowPlacement.CreateDefault();
         KeyPreview = true;
         _appIcon = LoadIcon();
         Icon = _appIcon;
@@ -53,10 +55,9 @@ public sealed class MainForm : Form
         BuildInterface();
         BuildMenusAndTray();
         ApplyTextSize(_settings.TextSize);
-        _results.SetWelcome(_settings.Shortcut);
+        ShowUserGuide();
         _warningTimer.Tick += (_, _) => _statusStrip.Visible = false;
         Shown += OnInitialShown;
-        ResizeEnd += (_, _) => SaveWindowPlacement();
     }
 
     private void BuildInterface()
@@ -105,6 +106,15 @@ public sealed class MainForm : Form
 
         _results.Dock = DockStyle.Fill;
         _results.SynonymClicked += (_, e) => PerformLookup(e.Synonym);
+        _guide.Dock = DockStyle.Fill;
+        _guide.NoticeRequested += (_, e) =>
+        {
+            using var dialog = new LicenseDialog(e.Title, Path.Combine(AppContext.BaseDirectory, "licenses", e.Filename));
+            dialog.ShowDialog(this);
+        };
+        _content.Dock = DockStyle.Fill;
+        _content.Controls.Add(_results);
+        _content.Controls.Add(_guide);
         _statusStrip.Dock = DockStyle.Bottom;
         _statusStrip.SizingGrip = false;
         _statusStrip.Visible = false;
@@ -112,7 +122,7 @@ public sealed class MainForm : Form
         _statusLabel.TextAlign = ContentAlignment.MiddleLeft;
         _statusStrip.Items.Add(_statusLabel);
 
-        Controls.Add(_results);
+        Controls.Add(_content);
         Controls.Add(_topPanel);
         Controls.Add(_statusStrip);
     }
@@ -148,7 +158,11 @@ public sealed class MainForm : Form
         textSize.DropDownItems.Add("Reset", null, (_, _) => ApplyTextSize(10f, true));
         menu.Items.Add(textSize);
         menu.Items.Add("Lookup shortcut…", null, (_, _) => ChangeShortcut());
-        menu.Items.Add("About", null, (_, _) => ShowAbout());
+        menu.Items.Add("User Guide", null, (_, _) =>
+        {
+            ShowUserGuide();
+            if (tray) Summon(null);
+        });
         menu.Items.Add("Exit", null, (_, _) => ExitApplication());
     }
 
@@ -159,6 +173,7 @@ public sealed class MainForm : Form
         {
             gesture = HotkeyGesture.Default;
             _settings.Shortcut = gesture.ToString();
+            if (_history.IsGuideVisible) ShowUserGuide();
         }
         if (!_hotkey.Register(gesture, out _hotkeyError))
         {
@@ -169,6 +184,8 @@ public sealed class MainForm : Form
             ShowWarning(_startupWarning);
         }
         FocusWord();
+        if (_history.IsGuideVisible)
+            BeginInvoke((Action)(() => _guide.ScrollToTop()));
     }
 
     private void PerformLookup(string? query)
@@ -189,6 +206,8 @@ public sealed class MainForm : Form
 
     private void ShowResult(LookupResult result)
     {
+        _guide.Visible = false;
+        _results.Visible = true;
         _wordBox.Text = result.Query;
         _results.SetResult(result);
         _backButton.Enabled = _history.CanGoBack;
@@ -210,6 +229,7 @@ public sealed class MainForm : Form
         _entryFont?.Dispose();
         _entryFont = newFont;
         _results.SetTextSize(_settings.TextSize);
+        _guide.SetTextSize(_settings.TextSize);
         _topPanel.Height = Math.Max(44, _entryFont.Height + 22);
         if (save)
         {
@@ -240,6 +260,7 @@ public sealed class MainForm : Form
             _settings.Shortcut = selected.ToString();
             _hotkeyError = null;
             SaveSettings();
+            if (_history.IsGuideVisible) ShowUserGuide();
             ShowWarning("Lookup shortcut registered: " + _settings.Shortcut);
             return;
         }
@@ -250,10 +271,20 @@ public sealed class MainForm : Form
         ShowWarning(error + (restored ? " The previous shortcut was restored." : " Use Lookup shortcut… to try another combination."));
     }
 
-    private void ShowAbout()
+    private void ShowUserGuide()
     {
-        using var dialog = new AboutDialog(_datasetInfo);
-        dialog.ShowDialog(this);
+        _history.ShowGuide();
+        _guide.SetDocument(UserGuideDocument.Create(Application.ProductVersion, _settings.Shortcut, _datasetInfo));
+        _results.Visible = false;
+        _guide.Visible = true;
+        _backButton.Enabled = _history.CanGoBack;
+        FocusWord();
+        _guide.ScrollToTop();
+        if (IsHandleCreated)
+            BeginInvoke((Action)(() =>
+            {
+                if (_history.IsGuideVisible) _guide.ScrollToTop();
+            }));
     }
 
     private void FocusWord()
@@ -264,13 +295,13 @@ public sealed class MainForm : Form
 
     public void Summon(string? capturedQuery)
     {
-        if (!Visible)
-        {
-            Show();
-        }
         if (WindowState == FormWindowState.Minimized)
         {
             WindowState = FormWindowState.Normal;
+        }
+        if (!Visible)
+        {
+            Show();
         }
         BringToFront();
         Activate();
@@ -313,15 +344,7 @@ public sealed class MainForm : Form
         try
         {
             var source = NativeMethods.GetForegroundWindow();
-            if (SelectedTextCapture.BelongsToCurrentProcess(source))
-            {
-                // The shortcut was pressed while Dictionary itself was active. There is nothing to capture
-                // from our own word field, so just bring the window forward ready for typing.
-                Summon(null);
-                return;
-            }
-
-            var result = await _capture.CaptureAsync(source);
+            var result = await _capture.CaptureAsync(source, _hotkey?.Current?.Key ?? Keys.D);
             if (result.Status == CaptureStatus.Success)
             {
                 Summon(result.Text);
@@ -333,8 +356,8 @@ public sealed class MainForm : Form
                 {
                     ShowWarning(result.Detail ?? "The selection is too long to look up.");
                 }
-                // No selection, no word under the pointer or at the text cursor, and unreadable text are normal
-                // hotkey cases. The window still opens with the existing query selected for manual replacement.
+                // Missing, unsupported, and unreadable selections are normal hotkey cases.
+                // The window still opens with the existing query selected for manual replacement.
             }
         }
         finally
@@ -396,29 +419,14 @@ public sealed class MainForm : Form
             HideToTray();
             return;
         }
-        SaveWindowPlacement();
         _settingsStore.Save(_settings, out _);
         _tray.Visible = false;
         _hotkey?.Unregister();
         base.OnFormClosing(e);
     }
 
-    private void SaveWindowPlacement()
-    {
-        var bounds = WindowState == FormWindowState.Normal ? Bounds : RestoreBounds;
-        if (bounds.Width < 100 || bounds.Height < 100)
-        {
-            return;
-        }
-        _settings.WindowX = bounds.X;
-        _settings.WindowY = bounds.Y;
-        _settings.WindowWidth = bounds.Width;
-        _settings.WindowHeight = bounds.Height;
-    }
-
     private void SaveSettings()
     {
-        SaveWindowPlacement();
         if (!_settingsStore.Save(_settings, out var warning) && warning is not null)
         {
             ShowWarning(warning);

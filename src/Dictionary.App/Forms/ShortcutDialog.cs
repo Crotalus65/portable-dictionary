@@ -8,9 +8,13 @@ public sealed class ShortcutDialog : Form
     private readonly TextBox _shortcutBox = new() { ReadOnly = true, Dock = DockStyle.Fill };
     private readonly Label _hint = new()
     {
-        Dock = DockStyle.Fill,
+        Dock = DockStyle.Top,
         Text = "Press at least one modifier (Ctrl, Alt, Shift, or Win) and another key.",
-        AutoEllipsis = true
+        AutoSize = true,
+        AutoEllipsis = false,
+        UseMnemonic = false,
+        TextAlign = ContentAlignment.TopLeft,
+        Margin = new Padding(0, 8, 0, 8)
     };
     private HotkeyGesture? _selected;
 
@@ -26,19 +30,25 @@ public sealed class ShortcutDialog : Form
         AutoScaleMode = AutoScaleMode.Dpi;
         Font = SystemFonts.MessageBoxFont;
         ClientSize = new Size(500, 240);
+        AutoSize = true;
+        AutoSizeMode = AutoSizeMode.GrowOnly;
         KeyPreview = true;
 
         var layout = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
             Padding = new Padding(16),
             ColumnCount = 1,
             RowCount = 4
         };
         layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        _hint.MaximumSize = new Size(Math.Max(1, ClientSize.Width - layout.Padding.Horizontal), 0);
         layout.Controls.Add(new Label
         {
             Text = "Global selected-text lookup shortcut:",
@@ -59,7 +69,8 @@ public sealed class ShortcutDialog : Form
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
             FlowDirection = FlowDirection.RightToLeft,
             WrapContents = false,
-            Padding = new Padding(16, 4, 16, 12)
+            Padding = new Padding(0, 4, 0, 0),
+            Margin = Padding.Empty
         };
         var ok = new Button
         {
@@ -78,8 +89,18 @@ public sealed class ShortcutDialog : Form
         ok.Click += (_, _) => AcceptGesture();
         buttons.Controls.Add(ok);
         buttons.Controls.Add(cancel);
+        layout.Controls.Add(buttons, 0, 3);
         Controls.Add(layout);
-        Controls.Add(buttons);
+        void UpdateHintWidth()
+        {
+            // A finite width makes an AutoSize label wrap; its height and the
+            // table row remain automatic for hints, conflicts, and DPI changes.
+            var width = Math.Max(1, layout.ClientSize.Width - layout.Padding.Horizontal - _hint.Margin.Horizontal);
+            if (_hint.MaximumSize.Width != width)
+                _hint.MaximumSize = new Size(width, 0);
+        }
+        layout.Layout += (_, _) => UpdateHintWidth();
+        UpdateHintWidth();
         AcceptButton = ok;
         CancelButton = cancel;
         _shortcutBox.Text = current.ToString();

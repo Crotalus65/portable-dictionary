@@ -17,8 +17,16 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Dictionary.Core\Dictionary.Core.csproj" />
+    <Compile Include="..\..\src\Dictionary.App\Services\TextCaptureReader.cs" Link="TextCaptureReader.cs" />
+    <Compile Include="..\..\src\Dictionary.App\Services\CaptureCoordinator.cs" Link="CaptureCoordinator.cs" />
+    <Compile Include="..\..\src\Dictionary.App\Services\ClipboardTextReader.cs" Link="ClipboardTextReader.cs" />
+    <Compile Include="..\..\src\Dictionary.App\Services\LookupNavigation.cs" Link="LookupNavigation.cs" />
+    <Compile Include="..\..\src\Dictionary.App\Services\UserGuideDocument.cs" Link="UserGuideDocument.cs" />
+    <Compile Include="..\..\src\Dictionary.App\Services\LicenseText.cs" Link="LicenseText.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\..\data\dictionary.db" Link="data\dictionary.db" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\licenses\WNDB_License.txt" Link="licenses\WNDB_License.txt" CopyToOutputDirectory="PreserveNewest" />
+    <EmbeddedResource Include="..\..\docs\USER_GUIDE.md" LogicalName="PortableDictionary.UserGuide.md" />
   </ItemGroup>
 </Project>

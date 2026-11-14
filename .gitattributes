@@ -1,0 +1,3 @@
+# Keep the prepared database and icons byte-exact on every platform.
+data/dictionary.db binary
+*.ico binary
