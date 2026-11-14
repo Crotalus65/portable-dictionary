@@ -1,3 +1,7 @@
-# Keep the prepared database and icons byte-exact on every platform.
+# Text files keep LF line endings on every platform so that archives built on a
+# Windows runner match those built elsewhere byte for byte.
+* text=auto eol=lf
+
+# Keep the prepared database and icons byte-exact.
 data/dictionary.db binary
 *.ico binary
