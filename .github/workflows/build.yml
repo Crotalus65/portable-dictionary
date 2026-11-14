@@ -125,15 +125,14 @@ jobs:
                 echo "Tag $tag already exists at $existing, not at this commit $GITHUB_SHA. Bump APP_VERSION, or re-run with 'Replace an existing release' enabled." >&2
                 return 1
               fi
-              echo "Replacing release $tag: removing the release and tag at $existing."
-              if ! gh release delete "$tag" --cleanup-tag --yes; then
-                echo "No release to delete; removing the remote tag directly."
-                git push --delete origin "refs/tags/$tag" || true
-              fi
-              git tag -d "$tag"
-            else
-              echo "Tag $tag does not exist yet."
+              echo "Replacing release $tag: deleting the old release and moving the tag from $existing."
+              gh release delete "$tag" --yes || echo "No release to delete."
+              git tag -f "$tag" "$GITHUB_SHA"
+              git push --force origin "refs/tags/$tag"
+              echo "Moved tag $tag to $GITHUB_SHA."
+              return 0
             fi
+            echo "Tag $tag does not exist yet."
             git tag "$tag" "$GITHUB_SHA"
             git push origin "refs/tags/$tag"
             echo "Created tag $tag at $GITHUB_SHA."
