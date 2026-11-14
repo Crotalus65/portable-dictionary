@@ -13,6 +13,8 @@
     <AssemblyVersion>1.0.5.0</AssemblyVersion>
     <FileVersion>1.0.5.0</FileVersion>
     <InformationalVersion>1.0.5</InformationalVersion>
+    <!-- Keep Application.ProductVersion (window title, tray, guide) to the plain version: builds from a git checkout would otherwise append +<commit>. -->
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <ApplicationIcon>Assets\Dictionary.ico</ApplicationIcon>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>

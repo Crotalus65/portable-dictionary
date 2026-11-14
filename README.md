@@ -23,6 +23,7 @@ Each release page also lists SHA-256 checksums for the archives and offers the m
 - Applies the revised guide wording, moves **Reopen this guide** immediately after **Change the lookup shortcut**, and adds guidance for word processors and PDF readers that require highlighting.
 - Lookup behavior and dictionary data remain unchanged from 1.0.4.
 - A `dictionary.db` that fails schema or dataset validation is closed before the error is reported, so Windows can replace or delete the file afterwards. This also lets the two schema-rejection tests pass on Windows.
+- The window title, tray tooltip, and guide show the plain version number. Builds made from a git checkout no longer append the commit hash to it.
 
 ## Version 1.0.4
 
