@@ -115,6 +115,13 @@ jobs:
           set -o pipefail
           create_tag() {
             tag="v${{ steps.version.outputs.version }}"
+            # A re-run of an older run builds that older commit with its older workflow. Never let it
+            # tag or replace a release: only the current head of main may be published.
+            head="$(git ls-remote origin refs/heads/main | cut -f1)"
+            if [ "$head" != "$GITHUB_SHA" ]; then
+              echo "This run is for commit $GITHUB_SHA, but main is now at $head. Start a new run from Actions -> Build -> Run workflow instead of re-running an old one." >&2
+              return 1
+            fi
             if git fetch --depth=1 origin "refs/tags/$tag:refs/tags/$tag"; then
               existing="$(git rev-parse "$tag^{commit}")"
               if [ "$existing" = "$GITHUB_SHA" ]; then
@@ -162,7 +169,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "ci-failure-logs-run-${{ github.run_number }}" release/logs/*.log \
+          gh release create "ci-failure-logs-run-${{ github.run_number }}-${{ github.run_attempt }}" release/logs/*.log \
             --target "${{ github.sha }}" \
             --prerelease \
             --title "CI failure logs, run ${{ github.run_number }} (safe to delete)" \
